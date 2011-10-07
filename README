@@ -1,0 +1,1 @@
+This code adds a LCD to the 2 DS18B20 digital temp sensors used in Lesson2.  The One Wire portion was abbreviated since we know the hex address for each sensor.  We don't need to "find" them any longer.

@@ -1,0 +1,85 @@
+// Lesson 2.5
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <LiquidCrystal.h>
+#include <Wire.h>
+
+LiquidCrystal lcd(0);
+int dispMode = 0;    //What mode is the LCD display in ?
+
+// Data wire is plugged into pin 3 on the Arduino
+#define ONE_WIRE_BUS 3
+#define TEMPERATURE_PRECISION 12
+
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Pass our oneWire reference to Dallas Temperature. 
+DallasTemperature sensors(&oneWire);
+
+// arrays to hold device addresses – replace with your sensors addresses
+DeviceAddress BlkBlk = { 0x28, 0x40, 0x4A, 0x59, 0x03, 0x00, 0x00, 0x90 };   //BlkBlk
+DeviceAddress RedBlk = { 0x28, 0xC8, 0x52, 0x59, 0x03, 0x00, 0x00, 0x99 };   //RedBlk
+
+float temp, tempF, tempRB, tempBB;
+
+
+void setup()
+{
+  // start serial port
+  Serial.begin(9600);
+
+  // Start up the library
+  sensors.begin();
+
+  Serial.println("Initialising...");
+  Serial.println();
+     
+// set the resolution
+  
+  sensors.setResolution(BlkBlk, TEMPERATURE_PRECISION);
+  sensors.setResolution(RedBlk, TEMPERATURE_PRECISION);
+  
+  lcd.begin(20, 4);
+  lcd.clear();
+}
+
+// function to print the temperature for a device
+void printTemperature(DeviceAddress deviceAddress)
+{
+  float tempC = sensors.getTempC(deviceAddress);
+  temp = tempC;
+  Serial.print(" Temp C: ");
+  Serial.print(tempC);
+  Serial.print("  Temp F: ");
+  Serial.println(DallasTemperature::toFahrenheit(tempC));
+  tempF = (DallasTemperature::toFahrenheit(tempC));
+}
+
+
+
+
+void loop()
+{ 
+   sensors.requestTemperatures();
+  // print the temperatures
+  Serial.print("BlkBlk Temp:");
+  printTemperature(BlkBlk);
+   lcd.setCursor(0,0);
+        lcd.print("BlkBlk Temp ");
+        lcd.print(tempF);
+      	lcd.write(B11011111); // print degree symbol
+  	lcd.print("F ");
+  Serial.print("RedBlk Temp:");
+  printTemperature(RedBlk);
+   lcd.setCursor(20,0);
+        lcd.print("RedBlk Temp ");
+        lcd.print(tempF);
+      	lcd.write(B11011111); // print degree symbol
+  	lcd.print("F ");
+  Serial.println();
+   
+  delay(1000);
+  
+}
